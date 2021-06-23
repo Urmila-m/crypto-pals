@@ -17,12 +17,16 @@ def base64ToBytes(base64Value):
 def searchKey(bytesValue):
 	hammingDistances = {}
 	for i in range(2, 41):
-		byte1 = bytesValue[0:i]
-		byte2 = bytesValue[i:2*i]
-		hammingDistances[i] = hammingDist(byte1, byte2)/i
+		distance = 0
+		# the more samples you take, the better result you get
+		for j in range(40):
+			byte1 = bytesValue[0+j:i+j]
+			byte2 = bytesValue[i+j:2*i+j]
+			distance += hammingDist(byte1, byte2)/i
+
+		hammingDistances[i] = distance
 
 	return sorted(hammingDistances.items(), key=lambda x: x[1])[0]
-
 
 if __name__ == "__main__":
 	with open("set1/6.txt", "r") as f:
@@ -33,7 +37,8 @@ if __name__ == "__main__":
 	# keySizes = searchKey(inputBytes)
 	keySize, distance = searchKey(inputBytes)
 	# for keySize, distance in keySizes:
-	print(f"\n\n\nkeysize: {keySize}")
+	# print(f"\n\n\nkeysize: {keySize}")
+	# print(searchKey(inputBytes))
 	blockList = []
 	for i in range(0, len(inputBytes), keySize):
 		block = []
@@ -48,7 +53,11 @@ if __name__ == "__main__":
 	
 	transposedBlock = np.transpose(blockList)
 
-
 	for i in range(keySize):
-		print(f"Block: {i}\n")
-		singleByteXOR(bytes(transposedBlock[i]), 3)
+		print(f"\nBlock: {i}")
+		singleByteXOR(bytes(transposedBlock[i].tolist()), 1)
+
+	# ter(inator x: bring the noise
+
+	print(repeatingKeyXOR(inputBytes, b"Terminator X: Bring the noise"))
+
