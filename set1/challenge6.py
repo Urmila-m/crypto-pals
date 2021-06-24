@@ -19,9 +19,9 @@ def searchKey(bytesValue):
 	for i in range(2, 41):
 		distance = 0
 		# the more samples you take, the better result you get
-		for j in range(40):
-			byte1 = bytesValue[0+j:i+j]
-			byte2 = bytesValue[i+j:2*i+j]
+		for j in range(10):
+			byte1 = bytesValue[j*i:(j+1)*i]
+			byte2 = bytesValue[(j+1)*i:2*(j+2)*i]
 			distance += hammingDist(byte1, byte2)/i
 
 		hammingDistances[i] = distance
@@ -29,11 +29,12 @@ def searchKey(bytesValue):
 	return sorted(hammingDistances.items(), key=lambda x: x[1])[0]
 
 if __name__ == "__main__":
-	with open("set1/6.txt", "r") as f:
-		input = f.read()
+	# with open("set1/6.txt", "r") as f:
+	# 	input = f.read()
 
-	inputBytes = base64ToBytes(input)
-
+	# inputBytes = base64ToBytes(input)
+	inputBytes = hexToBytes('0e0b213f26041e480b26217f27342e175d0e070a3c5b103e2526217f27342e175d0e077e263451150104')
+	# print(searchKey(inputBytes))
 	# keySizes = searchKey(inputBytes)
 	keySize, distance = searchKey(inputBytes)
 	# for keySize, distance in keySizes:
@@ -59,5 +60,5 @@ if __name__ == "__main__":
 
 	# ter(inator x: bring the noise
 
-	print(repeatingKeyXOR(inputBytes, b"Terminator X: Bring the noise"))
+	# print(repeatingKeyXOR(inputBytes, b"Terminator X: Bring the noise").decode())
 
