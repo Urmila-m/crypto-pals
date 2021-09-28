@@ -1,5 +1,6 @@
 import random
 import os
+import math
 
 from Crypto.Cipher import AES
 from Crypto.Util import Padding
@@ -33,16 +34,21 @@ def find_block_size():
 	return block_size
 
 # we are not exposed to the random bytes that encryption_oracle appends to the given plain text
-# this function finds those random bytes[only the length of block size :(]
-def decrypt_AES_ECB(block_size):
+# this function finds those random bytes
+def decrypt_AES_ECB(block_size, ct_length):
+	no_of_blocks = math.ceil(ct_length/block_size)
 	plain_text = b''
-	for k in range(block_size, 0, -1):
+	for k in range(no_of_blocks*block_size, 0, -1):
 		byte_n = encryption_oracle(b'a'*(k - 1))
 		all_possibilities = [encryption_oracle(b'a'*(k - 1)+plain_text+bytes([i])) for i in range(256)]
 		for i, possibility in enumerate(all_possibilities):
-			if(byte_n[:block_size] == possibility[:block_size]):
-				plain_text += bytes([i])
-				break
+			if(byte_n[:no_of_blocks*block_size] == possibility[:no_of_blocks*block_size]):
+				try:
+					req_chr = bytes([i]).decode('ascii')
+					plain_text += bytes([i])
+					break
+				except:
+					return plain_text
 	return plain_text
 
 def main():
@@ -50,7 +56,7 @@ def main():
 	print(f"Block size: {block_size}")
 	encryption_mode = detectEncryptionMode(encryption_oracle(b'a'*(2*block_size)), block_size)
 	print(f"Encryption mode: {encryption_mode}")
-	print(decrypt_AES_ECB(block_size))
+	print(decrypt_AES_ECB(block_size, len(encryption_oracle(b''))))
 
 if __name__=="__main__":
 	main()
