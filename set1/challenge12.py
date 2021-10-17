@@ -20,9 +20,9 @@ def encryption_oracle(plainText):
 	cipher = AES.new(AES_Key, AES.MODE_ECB)
 	return cipher.encrypt(Padding.pad(plainText, 16))
 
-def find_block_size():
+def find_block_size(encryption_function=encryption_oracle):
 	# it will only be able to find the block size if the block size is smaller than 40(worst case scenario)
-	lengths = [len(encryption_oracle(b'a'*i)) for i in range(1, 40+1)]
+	lengths = [len(encryption_function(b'a'*i)) for i in range(1, 40+1)]
 
 	# if blocksize is N, then the len(encryption...) will be same for N elements as oracle adds padding to make the ciphertext a multiple of block size
 	# for next N elements, the length will be k+N : k is length of previous N elements(also multiple of N)
