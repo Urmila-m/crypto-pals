@@ -10,21 +10,21 @@ def fixedXOR(byte1, byte2):
 	
 	return bytes(xorResult)
 
-def AES_CBC_block_encrypt(block, nonce, key):
-
+def AES_CBC_block_encrypt(block, nonce, key, padding):
 	if(len(block) != len(nonce)):
-		block = block + (len(nonce) - len(block)) * b'\x00'
+		padding = bytes([len(nonce) - len(block)]) if padding != b'\x00' else padding
+		block = block + (len(nonce) - len(block)) * padding
 
 	processedBlock = fixedXOR(block, nonce)
 	cipher = AES.new(key, AES.MODE_ECB)
 	return cipher.encrypt(processedBlock)
 
-def AES_CBC_encrypt(plainText, initialVector, key):
+def AES_CBC_encrypt(plainText, initialVector, key, padding=b'\x00'):
 	cipherText = b""
 	nonce = initialVector
 	for i in range(0, len(plainText), BLOCK_SIZE):
 		block = plainText[i:i+BLOCK_SIZE]
-		nonce = AES_CBC_block_encrypt(block, nonce, key)
+		nonce = AES_CBC_block_encrypt(block, nonce, key, padding)
 		cipherText += nonce
 	return cipherText
 
@@ -44,7 +44,7 @@ def AES_CBC_decrypt(cipherText, initialVector, key):
 	return plainText
 
 if __name__ == "__main__":
-	with open("set1/10.txt", "r") as f:
+	with open("10.txt", "r") as f:
 		input = f.read()
 
 	cipherText = base64ToBytes(input)
